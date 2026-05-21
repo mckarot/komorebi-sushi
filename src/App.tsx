@@ -446,32 +446,52 @@ const Navbar = ({
                 <MenuIcon className="w-6 h-6" />
               </Button>
             } />
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-              <SheetHeader>
-                <SheetTitle className="text-left font-serif text-2xl">KOMOREBI</SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-col space-y-6 mt-12 text-xl font-light">
-                {["Menu", "Philosophie", "Réservations", "Contact"].map((item) => (
-                  <a 
-                    key={item} 
-                    href={item === "Réservations" ? "#" : `#${item.toLowerCase()}`}
-                    onClick={item === "Réservations" ? (e) => {
-                      e.preventDefault();
-                      onOpenReservation();
-                    } : undefined}
-                    className="hover:pl-2 transition-all cursor-pointer"
-                  >
-                    {item}
-                  </a>
-                ))}
-                
-                <div className="flex items-center justify-between border-t border-border pt-6 mt-4">
-                  <span className="text-sm font-medium text-foreground">Mode Sombre</span>
+            <SheetContent side="right" className="w-full max-w-[360px] sm:max-w-[400px] bg-background/95 backdrop-blur-2xl border-l border-border/50 p-0 flex flex-col justify-between h-full">
+              {/* Header inside Sheet */}
+              <div className="px-8 pt-8 pb-4 flex justify-between items-center border-b border-border/20">
+                <SheetHeader className="p-0">
+                  <SheetTitle className="text-left font-serif text-2xl tracking-widest font-bold text-foreground">
+                    KOMOREBI
+                  </SheetTitle>
+                </SheetHeader>
+              </div>
+
+              {/* Navigation Links */}
+              <div className="flex-grow flex flex-col justify-center px-8 py-12 space-y-8">
+                {["Menu", "Philosophie", "Réservations", "Contact"].map((item, idx) => {
+                  const number = `0${idx + 1}`;
+                  return (
+                    <a 
+                      key={item} 
+                      href={item === "Réservations" ? "#" : `#${item.toLowerCase()}`}
+                      onClick={item === "Réservations" ? (e) => {
+                        e.preventDefault();
+                        onOpenReservation();
+                      } : undefined}
+                      className="group flex items-baseline gap-4 text-foreground/80 hover:text-accent transition-colors duration-300 cursor-pointer"
+                    >
+                      <span className="text-[10px] font-sans font-semibold tracking-wider text-muted-foreground/60 group-hover:text-accent transition-colors">
+                        {number}
+                      </span>
+                      <span className="text-xl md:text-2xl font-serif font-medium tracking-wide">
+                        {item}
+                      </span>
+                    </a>
+                  );
+                })}
+              </div>
+
+              {/* Footer Section */}
+              <div className="px-8 pb-12 pt-8 border-t border-border/20 bg-muted/20">
+                <div className="flex items-center justify-between mb-8">
+                  <span className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                    Mode Sombre
+                  </span>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={toggleTheme}
-                    className="rounded-full hover:bg-muted w-10 h-10 flex items-center justify-center border border-border relative overflow-hidden transition-all cursor-pointer"
+                    className="rounded-full hover:bg-muted w-11 h-11 flex items-center justify-center border border-border/80 relative overflow-hidden transition-all cursor-pointer bg-background apple-shadow"
                     aria-label="Changer de thème"
                   >
                     <motion.div
@@ -495,10 +515,16 @@ const Navbar = ({
                 
                 <Button 
                   onClick={onOpenReservation}
-                  className="w-full rounded-full mt-4 cursor-pointer"
+                  className="w-full rounded-full h-12 bg-foreground text-background hover:bg-accent hover:text-white transition-all duration-300 font-semibold text-xs uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer shadow-md"
                 >
                   Réserver une table
                 </Button>
+
+                <div className="text-center mt-6">
+                  <p className="text-[10px] font-sans font-semibold tracking-[0.25em] text-muted-foreground/40 uppercase">
+                    Paris — Rue de la Paix
+                  </p>
+                </div>
               </div>
             </SheetContent>
           </Sheet>
