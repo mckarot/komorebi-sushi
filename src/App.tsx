@@ -289,14 +289,16 @@ const Navbar = ({
   onOpenCart, 
   onOpenAuth,
   theme,
-  toggleTheme
+  toggleTheme,
+  onOpenReservation
 }: { 
   onToggleDashboard: () => void, 
   isDashboard: boolean, 
   onOpenCart: () => void, 
   onOpenAuth: () => void,
   theme: "light" | "dark",
-  toggleTheme: () => void
+  toggleTheme: () => void,
+  onOpenReservation: () => void
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, loading, role } = useAuth();
@@ -330,8 +332,12 @@ const Navbar = ({
               {["Menu", "Philosophie", "Réservations", "Contact"].map((item) => (
                 <a 
                   key={item} 
-                  href={`#${item.toLowerCase()}`} 
-                  className="hover:opacity-100 opacity-80 transition-opacity"
+                  href={item === "Réservations" ? "#" : `#${item.toLowerCase()}`}
+                  onClick={item === "Réservations" ? (e) => {
+                    e.preventDefault();
+                    onOpenReservation();
+                  } : undefined}
+                  className="hover:opacity-100 opacity-80 transition-opacity cursor-pointer"
                 >
                   {item}
                 </a>
@@ -446,7 +452,15 @@ const Navbar = ({
               </SheetHeader>
               <div className="flex flex-col space-y-6 mt-12 text-xl font-light">
                 {["Menu", "Philosophie", "Réservations", "Contact"].map((item) => (
-                  <a key={item} href={`#${item.toLowerCase()}`} className="hover:pl-2 transition-all">
+                  <a 
+                    key={item} 
+                    href={item === "Réservations" ? "#" : `#${item.toLowerCase()}`}
+                    onClick={item === "Réservations" ? (e) => {
+                      e.preventDefault();
+                      onOpenReservation();
+                    } : undefined}
+                    className="hover:pl-2 transition-all cursor-pointer"
+                  >
                     {item}
                   </a>
                 ))}
@@ -479,9 +493,12 @@ const Navbar = ({
                   </Button>
                 </div>
                 
-                <a href="#réservations" className="w-full block cursor-pointer">
-                  <Button className="w-full rounded-full mt-4 pointer-events-none">Réserver une table</Button>
-                </a>
+                <Button 
+                  onClick={onOpenReservation}
+                  className="w-full rounded-full mt-4 cursor-pointer"
+                >
+                  Réserver une table
+                </Button>
               </div>
             </SheetContent>
           </Sheet>
@@ -491,7 +508,7 @@ const Navbar = ({
   );
 };
 
-const Hero = () => {
+const Hero = ({ onOpenReservation }: { onOpenReservation: () => void }) => {
   return (
     <ScrollExpandMedia
       mediaType="video"
@@ -518,11 +535,13 @@ const Hero = () => {
             Une fusion entre tradition millénaire japonaise et pureté contemporaine. Découvrez le sushi réinventé.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-6">
-            <a href="#réservations" className="cursor-pointer">
-              <Button size="lg" className="rounded-full px-8 h-12 bg-foreground text-background hover:bg-foreground/90 text-[14px] font-medium pointer-events-none">
-                Réserver une table
-              </Button>
-            </a>
+            <Button 
+              size="lg" 
+              onClick={onOpenReservation}
+              className="rounded-full px-8 h-12 bg-foreground text-background hover:bg-foreground/90 text-[14px] font-medium cursor-pointer"
+            >
+              Réserver une table
+            </Button>
             <a href="#menu" className="cursor-pointer">
               <Button variant="link" className="text-[#0066cc] p-0 h-auto text-[14px] font-normal hover:no-underline pointer-events-none">
                 Découvrir le menu &rsaquo;
@@ -585,18 +604,18 @@ const MenuSection = ({ items, onOpenImmersiveMenu }: { items: MenuItem[]; onOpen
           </Tabs>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          <AnimatePresence mode="popLayout">
-            {filteredItems.map((item) => (
-              <motion.div
-                key={item.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-              >
-                <Card className="group border-none apple-shadow overflow-hidden bg-background rounded-[28px] h-full flex flex-col">
+        <div className="overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={activeCategory}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
+            >
+              {filteredItems.map((item) => (
+                <Card key={item.id} className="group border-none apple-shadow overflow-hidden bg-background rounded-[28px] h-full flex flex-col">
                   <div className="relative aspect-[4/5] overflow-hidden">
                     <img 
                       src={item.image} 
@@ -625,8 +644,8 @@ const MenuSection = ({ items, onOpenImmersiveMenu }: { items: MenuItem[]; onOpen
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
-            ))}
+              ))}
+            </motion.div>
           </AnimatePresence>
         </div>
 
@@ -729,72 +748,134 @@ const ImmersiveMenu = ({
                 <p className="text-muted-foreground text-lg">Aucun plat disponible pour le moment.</p>
               </div>
             ) : (
-              <motion.div 
-                layout
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 pb-20"
-              >
-                <AnimatePresence mode="popLayout">
-                  {filteredItems.map((item, idx) => (
-                    <motion.div
-                      key={item.id}
-                      layout
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ 
-                        duration: 0.6, 
-                        delay: idx * 0.05, 
-                        ease: [0.16, 1, 0.3, 1] 
-                      }}
-                      className="group flex flex-col bg-muted/30 border border-border/60 hover:border-border hover:bg-muted/50 rounded-[32px] overflow-hidden apple-shadow transition-all duration-500 h-full"
-                    >
-                      <div className="relative aspect-[4/3] overflow-hidden">
-                        <img
-                          src={item.image || "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800&auto=format&fit=crop"}
-                          alt={item.name}
-                          className="w-full h-full object-cover transform duration-700 ease-out group-hover:scale-105"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="absolute top-4 left-4 flex gap-2">
-                          {item.isNew && (
-                            <Badge className="bg-background text-foreground hover:bg-background border-none apple-shadow font-medium">
-                              Nouveau
-                            </Badge>
-                          )}
-                          {item.isPopular && (
-                            <Badge className="bg-accent text-white hover:bg-accent border-none apple-shadow font-medium">
-                              Populaire
-                            </Badge>
-                          )}
+              <div className="flex-1 overflow-hidden">
+                <AnimatePresence mode="wait">
+                  <motion.div 
+                    key={activeCategory}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 pb-20"
+                  >
+                    {filteredItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="group flex flex-col bg-muted/30 border border-border/60 hover:border-border hover:bg-muted/50 rounded-[32px] overflow-hidden apple-shadow transition-all duration-500 h-full"
+                      >
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          <img
+                            src={item.image || "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800&auto=format&fit=crop"}
+                            alt={item.name}
+                            className="w-full h-full object-cover transform duration-700 ease-out group-hover:scale-105"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div className="absolute top-4 left-4 flex gap-2">
+                            {item.isNew && (
+                              <Badge className="bg-background text-foreground hover:bg-background border-none apple-shadow font-medium">
+                                Nouveau
+                              </Badge>
+                            )}
+                            {item.isPopular && (
+                              <Badge className="bg-accent text-white hover:bg-accent border-none apple-shadow font-medium">
+                                Populaire
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="p-8 flex flex-col flex-1">
-                        <div className="flex justify-between items-start gap-4 mb-3">
-                          <h3 className="text-xl font-semibold text-foreground group-hover:text-accent transition-colors duration-300">
-                            {item.name}
-                          </h3>
-                          <span className="text-lg font-serif font-semibold text-foreground whitespace-nowrap">
-                            {item.price}
-                          </span>
+                        <div className="p-8 flex flex-col flex-1">
+                          <div className="flex justify-between items-start gap-4 mb-3">
+                            <h3 className="text-xl font-semibold text-foreground group-hover:text-accent transition-colors duration-300">
+                              {item.name}
+                            </h3>
+                            <span className="text-lg font-serif font-semibold text-foreground whitespace-nowrap">
+                              {item.price}
+                            </span>
+                          </div>
+                          <p className="text-sm font-light text-muted-foreground leading-relaxed mb-6 flex-1">
+                            {item.description}
+                          </p>
+                          
+                          <Button
+                            onClick={() => addToCart(item)}
+                            className="w-full rounded-full h-11 bg-foreground text-background hover:bg-accent hover:text-white transition-all duration-300 font-medium text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-sm group-hover:shadow"
+                          >
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            Ajouter au panier
+                          </Button>
                         </div>
-                        <p className="text-sm font-light text-muted-foreground leading-relaxed mb-6 flex-1">
-                          {item.description}
-                        </p>
-                        
-                        <Button
-                          onClick={() => addToCart(item)}
-                          className="w-full rounded-full h-11 bg-foreground text-background hover:bg-accent hover:text-white transition-all duration-300 font-medium text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-sm group-hover:shadow"
-                        >
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          Ajouter au panier
-                        </Button>
                       </div>
-                    </motion.div>
-                  ))}
+                    ))}
+                  </motion.div>
                 </AnimatePresence>
-              </motion.div>
+              </div>
             )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const ImmersiveReservation = ({ 
+  isOpen, 
+  onClose 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+}) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="fixed inset-0 z-[100] flex flex-col w-screen h-screen bg-background/95 backdrop-blur-2xl overflow-y-auto"
+        >
+          {/* Header */}
+          <div className="sticky top-0 z-50 w-full px-6 py-6 md:px-12 flex items-center justify-between border-b border-border bg-background/50 backdrop-blur-md">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-semibold tracking-[0.3em] text-accent uppercase mb-1">
+                Expérience Gastronomique
+              </span>
+              <h2 className="text-xl md:text-2xl font-sans font-bold tracking-tight text-foreground uppercase">
+                Réserver une table
+              </h2>
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="rounded-full w-12 h-12 flex items-center justify-center border border-border hover:bg-muted/80 transition-all cursor-pointer"
+              aria-label="Fermer la réservation"
+            >
+              <X className="w-5 h-5 text-foreground" />
+            </Button>
+          </div>
+
+          <div className="container mx-auto px-6 py-12 md:px-12 max-w-2xl flex-1 flex flex-col justify-center">
+            <div className="bg-muted/30 border border-border/60 p-8 md:p-12 rounded-[32px] apple-shadow">
+              <h3 className="text-2xl font-sans font-semibold mb-4 text-center text-foreground">Votre Table chez Komorebi</h3>
+              <p className="text-sm font-light text-muted-foreground text-center mb-8">
+                Veuillez renseigner les détails de votre réservation. Un e-mail de confirmation vous sera envoyé dès validation de notre équipe.
+              </p>
+              <ReservationForm />
+            </div>
           </div>
         </motion.div>
       )}
@@ -2724,6 +2805,7 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isImmersiveMenuOpen, setIsImmersiveMenuOpen] = useState(false);
+  const [isReservationOpen, setIsReservationOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isLoadingMenu, setIsLoadingMenu] = useState(true);
   const [menuError, setMenuError] = useState<string | null>(null);
@@ -2889,6 +2971,7 @@ export default function App() {
                     onOpenAuth={() => setIsAuthModalOpen(true)}
                     theme={theme}
                     toggleTheme={toggleTheme}
+                    onOpenReservation={() => setIsReservationOpen(true)}
                   />
                 )}
                 <main>
@@ -2906,7 +2989,7 @@ export default function App() {
                     </div>
                   ) : (
                     <>
-                      <Hero />
+                      <Hero onOpenReservation={() => setIsReservationOpen(true)} />
                       <MenuSection items={menuItems} onOpenImmersiveMenu={() => setIsImmersiveMenuOpen(true)} />
                       <Philosophy />
                       
@@ -2959,6 +3042,11 @@ export default function App() {
                   isOpen={isImmersiveMenuOpen}
                   onClose={() => setIsImmersiveMenuOpen(false)}
                   items={menuItems}
+                />
+                
+                <ImmersiveReservation 
+                  isOpen={isReservationOpen}
+                  onClose={() => setIsReservationOpen(false)}
                 />
               </div>
             );
