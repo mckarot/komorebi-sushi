@@ -588,20 +588,21 @@ const MenuSection = ({ items, onOpenImmersiveMenu }: { items: MenuItem[]; onOpen
               Nos poissons sont issus d'une pêche durable et responsable.
             </p>
           </div>
-          
-          <Tabs defaultValue="Tous" className="w-full md:w-auto" onValueChange={setActiveCategory}>
-            <TabsList className="bg-transparent border-b rounded-none h-auto p-0 space-x-8">
-              {CATEGORIES.map(cat => (
-                <TabsTrigger 
-                  key={cat} 
-                  value={cat}
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent px-0 py-4 text-sm font-medium transition-all"
-                >
-                  {cat}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          <div className="flex space-x-2 bg-muted p-1.5 rounded-full border border-border w-full md:w-auto overflow-x-auto scrollbar-none">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`relative px-6 py-2.5 rounded-full text-xs md:text-sm font-medium tracking-wide uppercase transition-all duration-300 cursor-pointer ${
+                  activeCategory === cat
+                    ? "bg-foreground text-background shadow-sm font-semibold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="overflow-hidden">
@@ -637,9 +638,10 @@ const MenuSection = ({ items, onOpenImmersiveMenu }: { items: MenuItem[]; onOpen
                       <div className="text-[17px] font-medium text-foreground mb-6">{item.price}</div>
                       <Button 
                         onClick={() => addToCart(item)}
-                        className="w-full rounded-full bg-muted text-foreground hover:bg-foreground hover:text-background transition-all"
+                        className="w-full rounded-full h-11 bg-foreground text-background hover:bg-accent hover:text-white transition-all duration-300 font-medium text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-sm group-hover:shadow"
                       >
-                        Ajouter
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        Ajouter au panier
                       </Button>
                     </div>
                   </CardContent>
