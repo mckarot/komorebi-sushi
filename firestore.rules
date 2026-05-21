@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId} (matches auth.uid)
+    // Fields:
+    //   - uid: string (required)
+    //   - email: string (required)
+    //   - displayName: string (optional)
+    //   - photoURL: string (optional)
+    //   - role: string (required, 'admin' | 'client')
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: reservations
+    // Document ID: {reservationId}
+    // Fields:
+    //   - userId: string (optional, for logged in users)
+    //   - name: string (required, 2-50 chars)
+    //   - email: string (required)
+    //   - phone: string (required)
+    //   - date: string (required, YYYY-MM-DD)
+    //   - time: string (required, HH:mm)
+    //   - guests: number (required, 1-20)
+    //   - status: string (required, 'pending' | 'confirmed' | 'cancelled')
+    //   - specialRequests: string (optional, max 500 chars)
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        (request.auth.token.email == "madadev97200@gmail.com" && request.auth.token.email_verified == true) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function isKitchen() { return hasRole('kitchen'); }
+    function isServer() { return hasRole('server'); }
+    function isStaff() { return isAdmin() || isKitchen() || isServer(); }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidDate(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}$");
+    }
+
+    function isValidTime(timeStr) {
+      return timeStr is string && timeStr.matches("^\\d{2}:\\d{2}$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role', 'createdAt']) &&
+             data.uid == request.auth.uid &&
+             isValidEmail(data.email) &&
+             data.role in ['admin', 'client'] &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidReservation(data) {
+      return data.keys().hasAll(['name', 'email', 'phone', 'date', 'time', 'guests', 'status', 'createdAt']) &&
+             data.name is string && data.name.size() >= 2 && data.name.size() <= 50 &&
+             isValidEmail(data.email) &&
+             data.phone is string && data.phone.size() >= 10 && data.phone.size() <= 15 &&
+             isValidDate(data.date) &&
+             isValidTime(data.time) &&
+             data.guests is number && data.guests >= 1 && data.guests <= 20 &&
+             data.status in ['pending', 'confirmed', 'cancelled'] &&
+             (!('specialRequests' in data) || (data.specialRequests is string && data.specialRequests.size() <= 500)) &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['customerName', 'items', 'total', 'status', 'createdAt']) &&
+             data.customerName is string && data.customerName.size() >= 2 &&
+             data.items is list && data.items.size() >= 1 &&
+             data.total is number && data.total > 0 &&
+             data.status in ['pending', 'preparing', 'ready', 'completed', 'cancelled'] &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isStaff();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
+                      (request.resource.data.role == 'client' || (request.resource.data.role == 'admin' && isAdmin()));
+      allow update: if (isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == resource.data.role) || isAdmin();
+    }
+
+    match /reservations/{reservationId} {
+      allow read: if isStaff() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isValidReservation(request.resource.data) && 
+                      (!('userId' in request.resource.data) || request.resource.data.userId == request.auth.uid);
+      allow update: if isStaff() || (isAuthenticated() && resource.data.userId == request.auth.uid && 
+                      isValidReservation(request.resource.data) && 
+                      request.resource.data.status == resource.data.status); // Users can't change status
+      allow delete: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if isStaff() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isValidOrder(request.resource.data) && 
+                      (!('userId' in request.resource.data) || request.resource.data.userId == request.auth.uid);
+      allow update: if isStaff();
+      allow delete: if isAdmin();
+    }
+
+    match /test/connection {
+      allow read: if true;
+    }
+  }
+}

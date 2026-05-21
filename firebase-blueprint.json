@@ -1,0 +1,67 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Informations de profil utilisateur",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "ID unique Firebase Auth" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "client", "kitchen", "server"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Commande à emporter",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "preparing", "ready", "completed", "cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["customerName", "items", "total", "status", "createdAt"]
+    },
+    "Reservation": {
+      "title": "Reservation",
+      "description": "Détails d'une réservation de table",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string", "description": "ID de l'utilisateur qui réserve" },
+        "name": { "type": "string", "description": "Nom pour la réservation" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "date": { "type": "string", "format": "date", "description": "Date de la réservation (YYYY-MM-DD)" },
+        "time": { "type": "string", "description": "Heure de la réservation (HH:mm)" },
+        "guests": { "type": "number", "description": "Nombre de personnes" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"] },
+        "specialRequests": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "date", "time", "guests", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Profils des utilisateurs"
+    },
+    "/reservations/{reservationId}": {
+      "schema": "Reservation",
+      "description": "Liste des réservations du restaurant"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Liste des commandes à emporter"
+    }
+  }
+}
