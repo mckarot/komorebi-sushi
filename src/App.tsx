@@ -43,6 +43,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ScrollExpandMedia from "@/components/ui/scroll-expansion-hero";
 
 import { 
   pb,
@@ -223,6 +224,63 @@ interface MenuItem {
 
 const CATEGORIES = ["Tous", "Nigiri", "Rolls", "Sashimi"];
 
+const FALLBACK_MENU_ITEMS: MenuItem[] = [
+  {
+    id: "fallback-nigiri-sake",
+    name: "Nigiri Sake Label Rouge",
+    description: "Tranche fondante de saumon Label Rouge délicatement mariée à un riz vinaigré assaisonné et un soupçon de zeste de yuzu.",
+    price: "12.00 €",
+    category: "Nigiri",
+    image: "https://images.unsplash.com/photo-1611143669185-af224c5e3252?q=80&w=800&auto=format&fit=crop",
+    isPopular: true
+  },
+  {
+    id: "fallback-nigiri-maguro",
+    name: "Nigiri Maguro Imperial",
+    description: "Thon rouge d'exception reposant sur un lit de riz vinaigré tiède, relevé par une pointe subtile de wasabi frais râpé à la main.",
+    price: "14.00 €",
+    category: "Nigiri",
+    image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800&auto=format&fit=crop",
+    isNew: true
+  },
+  {
+    id: "fallback-roll-komorebi",
+    name: "Komorebi Signature Roll",
+    description: "Crabe royal d'Alaska, avocat crémeux, saumon label rouge flambé de façon spectaculaire et filet de sauce unagi maison.",
+    price: "24.00 €",
+    category: "Rolls",
+    image: "https://images.unsplash.com/photo-1583623025817-d180a2221d0a?q=80&w=800&auto=format&fit=crop",
+    isPopular: true
+  },
+  {
+    id: "fallback-roll-truffe",
+    name: "Truffe & Asperge Roll",
+    description: "Asperge verte croustillante, avocat crémeux, fins copeaux de truffe noire d'été et éclats croustillants de tempura.",
+    price: "22.00 €",
+    category: "Rolls",
+    image: "https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=800&auto=format&fit=crop",
+    isNew: true
+  },
+  {
+    id: "fallback-sashimi-moriawase",
+    name: "Sashimi Moriawase",
+    description: "Sélection d'exception de notre Chef : tranches fines de thon rouge impérial, saumon Label Rouge fondant et daurade royale.",
+    price: "32.00 €",
+    category: "Sashimi",
+    image: "https://images.unsplash.com/photo-1534482421-64566f976cfa?q=80&w=800&auto=format&fit=crop",
+    isPopular: true
+  },
+  {
+    id: "fallback-sashimi-hamachi",
+    name: "Sashimi Hamachi Yuzu-Ponzu",
+    description: "Sériole délicate coupée au couteau japonais traditionnelle, rehaussée de piment jalapeño et d'une vinaigrette ponzu aux agrumes.",
+    price: "28.00 €",
+    category: "Sashimi",
+    image: "https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=80&w=800&auto=format&fit=crop"
+  }
+];
+
+
 // --- Components ---
 
 const Navbar = ({ 
@@ -255,7 +313,7 @@ const Navbar = ({
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled || isDashboard ? "py-2 glass shadow-sm" : "py-4 bg-transparent border-b border-transparent"}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 glass shadow-sm ${isScrolled || isDashboard ? "py-2" : "py-4"}`}>
       <div className="container mx-auto px-10 flex items-center justify-between">
         <motion.div 
           initial={{ opacity: 0 }}
@@ -421,7 +479,9 @@ const Navbar = ({
                   </Button>
                 </div>
                 
-                <Button className="w-full rounded-full mt-4">Réserver une table</Button>
+                <a href="#réservations" className="w-full block cursor-pointer">
+                  <Button className="w-full rounded-full mt-4 pointer-events-none">Réserver une table</Button>
+                </a>
               </div>
             </SheetContent>
           </Sheet>
@@ -433,8 +493,16 @@ const Navbar = ({
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex flex-col md:flex-row items-stretch overflow-hidden bg-background pt-20">
-      <div className="flex-1 flex flex-col justify-center px-10 md:px-20 py-20">
+    <ScrollExpandMedia
+      mediaType="video"
+      mediaSrc="/hero-video.mp4"
+      posterSrc="/scroll-hero.jpg"
+      bgImageSrc="https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=1920&auto=format&fit=crop"
+      title="KOMOREBI SUSHI"
+      date="PARIS — 2024"
+      scrollToExpand="SCROLL TO EXPLORE"
+    >
+      <div className="flex flex-col items-center justify-center text-center mt-12 md:mt-24 px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -443,65 +511,46 @@ const Hero = () => {
           <span className="inline-block text-[14px] font-semibold tracking-[0.1em] uppercase text-accent mb-4">
             Nouvelle Saison
           </span>
-          <h1 className="text-hero font-sans font-semibold mb-6 text-foreground">
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-sans font-semibold mb-6 text-foreground">
             L'art de l'essentiel <br /> dans chaque grain.
           </h1>
-          <p className="text-description font-normal text-muted-foreground max-w-md mb-10">
+          <p className="text-lg md:text-xl font-normal text-muted-foreground max-w-2xl mx-auto mb-10">
             Une fusion entre tradition millénaire japonaise et pureté contemporaine. Découvrez le sushi réinventé.
           </p>
-          <div className="flex flex-wrap items-center gap-6">
-            <Button size="lg" className="rounded-full px-8 h-12 bg-foreground text-background hover:bg-foreground/90 text-[14px] font-medium">
-              Réserver une table
-            </Button>
-            <Button variant="link" className="text-[#0066cc] p-0 h-auto text-[14px] font-normal hover:no-underline">
-              Découvrir le menu &rsaquo;
-            </Button>
+          <div className="flex flex-wrap items-center justify-center gap-6">
+            <a href="#réservations" className="cursor-pointer">
+              <Button size="lg" className="rounded-full px-8 h-12 bg-foreground text-background hover:bg-foreground/90 text-[14px] font-medium pointer-events-none">
+                Réserver une table
+              </Button>
+            </a>
+            <a href="#menu" className="cursor-pointer">
+              <Button variant="link" className="text-[#0066cc] p-0 h-auto text-[14px] font-normal hover:no-underline pointer-events-none">
+                Découvrir le menu &rsaquo;
+              </Button>
+            </a>
           </div>
-
-          <div className="hidden lg:flex gap-10 mt-24">
-            <div className="text-[12px] text-muted-foreground">
+          
+          <div className="hidden lg:flex justify-center gap-10 mt-24">
+            <div className="text-[12px] text-muted-foreground text-left">
               <strong className="text-foreground block mb-1 uppercase tracking-wider">Adresse</strong>
               12 Rue de la Paix, Paris
             </div>
-            <div className="text-[12px] text-muted-foreground">
+            <div className="text-[12px] text-muted-foreground text-left">
               <strong className="text-foreground block mb-1 uppercase tracking-wider">Horaires</strong>
               12:00 — 22:30
             </div>
-            <div className="text-[12px] text-muted-foreground">
+            <div className="text-[12px] text-muted-foreground text-left">
               <strong className="text-foreground block mb-1 uppercase tracking-wider">Contact</strong>
               +33 1 23 45 67 89
             </div>
           </div>
         </motion.div>
       </div>
-      
-      <div className="flex-1 bg-muted flex items-center justify-center p-10 md:p-20">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="w-full max-w-[400px] aspect-[4/5] bg-background rounded-[28px] apple-shadow p-10 flex flex-col items-center text-center"
-        >
-          <div className="w-full aspect-square bg-gradient-to-br from-[#e8e8ed] to-[#d2d2d7] rounded-full mb-10 flex items-center justify-center overflow-hidden">
-            <img 
-              src="https://images.unsplash.com/photo-1583623025817-d180a2221d0a?q=80&w=800&auto=format&fit=crop" 
-              alt="Signature Nigiri" 
-              className="w-3/4 h-3/4 object-contain"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-          <h2 className="text-[24px] font-semibold mb-2">Sake Nigiri</h2>
-          <p className="text-[17px] text-muted-foreground">Saumon frais, wasabi, riz Koshihikari</p>
-          <div className="mt-6 text-accent font-medium text-[14px]">
-            Pièce d'exception
-          </div>
-        </motion.div>
-      </div>
-    </section>
+    </ScrollExpandMedia>
   );
 };
 
-const MenuSection = ({ items }: { items: MenuItem[] }) => {
+const MenuSection = ({ items, onOpenImmersiveMenu }: { items: MenuItem[]; onOpenImmersiveMenu: () => void }) => {
   const [activeCategory, setActiveCategory] = useState("Tous");
   const { addToCart } = useCart();
 
@@ -582,7 +631,11 @@ const MenuSection = ({ items }: { items: MenuItem[] }) => {
         </div>
 
         <div className="mt-20 text-center">
-          <Button variant="link" className="group text-base font-medium">
+          <Button 
+            variant="link" 
+            onClick={onOpenImmersiveMenu}
+            className="group text-base font-medium cursor-pointer"
+          >
             Voir la carte complète <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Button>
         </div>
@@ -590,6 +643,165 @@ const MenuSection = ({ items }: { items: MenuItem[] }) => {
     </section>
   );
 };
+
+const ImmersiveMenu = ({ 
+  isOpen, 
+  onClose, 
+  items 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  items: MenuItem[]; 
+}) => {
+  const [activeCategory, setActiveCategory] = useState("Tous");
+  const { addToCart } = useCart();
+  
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  const filteredItems = activeCategory === "Tous" 
+    ? items 
+    : items.filter(item => item.category === activeCategory);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="fixed inset-0 z-[100] flex flex-col w-screen h-screen bg-background/95 backdrop-blur-2xl overflow-y-auto"
+        >
+          {/* Header */}
+          <div className="sticky top-0 z-50 w-full px-6 py-6 md:px-12 flex items-center justify-between border-b border-border bg-background/50 backdrop-blur-md">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-semibold tracking-[0.3em] text-accent uppercase mb-1">
+                Gastronomie Japonaise
+              </span>
+              <h2 className="text-xl md:text-2xl font-sans font-bold tracking-tight text-foreground uppercase">
+                La Carte Immersive
+              </h2>
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="rounded-full w-12 h-12 flex items-center justify-center border border-border hover:bg-muted/80 transition-all cursor-pointer"
+              aria-label="Fermer la carte"
+            >
+              <X className="w-5 h-5 text-foreground" />
+            </Button>
+          </div>
+
+          <div className="container mx-auto px-6 py-12 md:px-12 max-w-7xl flex-1 flex flex-col">
+            {/* Categories */}
+            <div className="flex justify-center mb-16 overflow-x-auto pb-4 scrollbar-none">
+              <div className="flex space-x-2 md:space-x-4 bg-muted p-1.5 rounded-full border border-border">
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`relative px-6 py-2.5 rounded-full text-xs md:text-sm font-medium tracking-wide uppercase transition-all duration-300 cursor-pointer ${
+                      activeCategory === cat
+                        ? "bg-foreground text-background shadow-md font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Dishes Grid */}
+            {filteredItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center flex-1">
+                <p className="text-muted-foreground text-lg">Aucun plat disponible pour le moment.</p>
+              </div>
+            ) : (
+              <motion.div 
+                layout
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 pb-20"
+              >
+                <AnimatePresence mode="popLayout">
+                  {filteredItems.map((item, idx) => (
+                    <motion.div
+                      key={item.id}
+                      layout
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ 
+                        duration: 0.6, 
+                        delay: idx * 0.05, 
+                        ease: [0.16, 1, 0.3, 1] 
+                      }}
+                      className="group flex flex-col bg-muted/30 border border-border/60 hover:border-border hover:bg-muted/50 rounded-[32px] overflow-hidden apple-shadow transition-all duration-500 h-full"
+                    >
+                      <div className="relative aspect-[4/3] overflow-hidden">
+                        <img
+                          src={item.image || "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800&auto=format&fit=crop"}
+                          alt={item.name}
+                          className="w-full h-full object-cover transform duration-700 ease-out group-hover:scale-105"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute top-4 left-4 flex gap-2">
+                          {item.isNew && (
+                            <Badge className="bg-background text-foreground hover:bg-background border-none apple-shadow font-medium">
+                              Nouveau
+                            </Badge>
+                          )}
+                          {item.isPopular && (
+                            <Badge className="bg-accent text-white hover:bg-accent border-none apple-shadow font-medium">
+                              Populaire
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="p-8 flex flex-col flex-1">
+                        <div className="flex justify-between items-start gap-4 mb-3">
+                          <h3 className="text-xl font-semibold text-foreground group-hover:text-accent transition-colors duration-300">
+                            {item.name}
+                          </h3>
+                          <span className="text-lg font-serif font-semibold text-foreground whitespace-nowrap">
+                            {item.price}
+                          </span>
+                        </div>
+                        <p className="text-sm font-light text-muted-foreground leading-relaxed mb-6 flex-1">
+                          {item.description}
+                        </p>
+                        
+                        <Button
+                          onClick={() => addToCart(item)}
+                          className="w-full rounded-full h-11 bg-foreground text-background hover:bg-accent hover:text-white transition-all duration-300 font-medium text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-sm group-hover:shadow"
+                        >
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                          Ajouter au panier
+                        </Button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 
 const Philosophy = () => {
   return (
@@ -2511,9 +2723,21 @@ export default function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isImmersiveMenuOpen, setIsImmersiveMenuOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isLoadingMenu, setIsLoadingMenu] = useState(true);
   const [menuError, setMenuError] = useState<string | null>(null);
+
+  const [showIntro, setShowIntro] = useState(true);
+
+  useEffect(() => {
+    if (showIntro) {
+      const timer = setTimeout(() => {
+        setShowIntro(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showIntro]);
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
@@ -2560,10 +2784,15 @@ export default function App() {
         setMenuError(null);
         const list = await pb.collection("dishes").getFullList({ sort: "name" });
         console.log("Dishes fetched from PocketBase:", list);
-        setMenuItems(list as unknown as MenuItem[]);
+        if (list && list.length > 0) {
+          setMenuItems(list as unknown as MenuItem[]);
+        } else {
+          console.warn("PocketBase returned empty list, using premium fallbacks.");
+          setMenuItems(FALLBACK_MENU_ITEMS);
+        }
       } catch (err) {
-        console.error("Error fetching dishes from PocketBase:", err);
-        setMenuError("Impossible de charger le menu. Vérifiez que PocketBase est bien lancé.");
+        console.error("Error fetching dishes from PocketBase, switching to premium fallbacks:", err);
+        setMenuItems(FALLBACK_MENU_ITEMS);
       } finally {
         setIsLoadingMenu(false);
       }
@@ -2587,6 +2816,64 @@ export default function App() {
 
             return (
               <div className="min-h-screen font-sans selection:bg-black selection:text-white">
+                <AnimatePresence>
+                  {showIntro && !["/admin", "/kitchen", "/server"].includes(currentPath) && (
+                    <motion.div
+                      key="preloader"
+                      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-colors duration-300 ${
+                        theme === 'light' ? 'bg-zinc-50 text-zinc-950' : 'bg-zinc-950 text-white'
+                      }`}
+                      exit={{ 
+                        y: "-100%", 
+                        transition: { duration: 1, ease: [0.85, 0, 0.15, 1] } 
+                      }}
+                    >
+                      <div className="overflow-hidden mb-4">
+                        <motion.div
+                          initial={{ y: "100%" }}
+                          animate={{ y: 0 }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="flex items-center justify-center"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent mr-3 animate-pulse"></span>
+                          <span className={`text-[10px] uppercase tracking-[0.4em] font-sans ${
+                            theme === 'light' ? 'text-zinc-400' : 'text-zinc-500'
+                          }`}>Komorebi Paris</span>
+                        </motion.div>
+                      </div>
+
+                      <div className="overflow-hidden mb-6">
+                        <motion.h1
+                          initial={{ opacity: 0, letterSpacing: "-0.1em" }}
+                          animate={{ 
+                            opacity: 1, 
+                            letterSpacing: "0.3em",
+                            transition: { 
+                              opacity: { duration: 1.5, ease: "easeOut" },
+                              letterSpacing: { duration: 2.2, ease: "easeOut" } 
+                            }
+                          }}
+                          className={`text-3xl md:text-5xl font-sans font-extralight uppercase tracking-widest pl-[0.3em] ${
+                            theme === 'light' ? 'text-zinc-800' : 'text-zinc-100'
+                          }`}
+                        >
+                          KOMOREBI
+                        </motion.h1>
+                      </div>
+
+                      <div className={`w-48 h-[1px] relative overflow-hidden rounded-full mt-4 ${
+                        theme === 'light' ? 'bg-zinc-200' : 'bg-zinc-800'
+                      }`}>
+                        <motion.div
+                          initial={{ left: "-100%" }}
+                          animate={{ left: "100%" }}
+                          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                          className="absolute inset-0 bg-accent w-1/2"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 <StaffRedirector role={role} currentPath={currentPath} navigateTo={navigateTo} loading={loading} />
                 {!["/kitchen", "/server"].includes(currentPath) && (
                   <Navbar 
@@ -2620,7 +2907,7 @@ export default function App() {
                   ) : (
                     <>
                       <Hero />
-                      <MenuSection items={menuItems} />
+                      <MenuSection items={menuItems} onOpenImmersiveMenu={() => setIsImmersiveMenuOpen(true)} />
                       <Philosophy />
                       
                       {/* Reservation CTA Section */}
@@ -2666,6 +2953,12 @@ export default function App() {
                       setIsCartOpen(true);
                     }
                   }}
+                />
+                
+                <ImmersiveMenu 
+                  isOpen={isImmersiveMenuOpen}
+                  onClose={() => setIsImmersiveMenuOpen(false)}
+                  items={menuItems}
                 />
               </div>
             );
