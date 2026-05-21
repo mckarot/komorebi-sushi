@@ -2,6 +2,7 @@ import PocketBase from "pocketbase";
 
 // Initialiser le client PocketBase avec l'adresse locale par défaut
 export const pb = new PocketBase("http://127.0.0.1:8090");
+pb.autoCancellation(false);
 
 // Types utiles
 export interface PocketBaseUser {
@@ -27,7 +28,7 @@ export const createUserWithEmailAndPassword = async (email: string, password: st
     password,
     passwordConfirm: password,
     name,
-    role: email === "madadev97200@gmail.com" ? "admin" : "client"
+    role: email === "adminuser@mail.com" ? "admin" : "client"
   });
 
   // 2. Connecter l'utilisateur pour stocker le token
@@ -45,7 +46,7 @@ export const signInWithGoogle = async () => {
   } catch (error) {
     console.error("OAuth Google failed, falling back to mock authentication in dev:", error);
     // En local/dev, si OAuth n'est pas configuré sur le dashboard PB, on peut faire un mock
-    return await signInWithEmailAndPassword("madadev97200@gmail.com", "password123");
+    return await signInWithEmailAndPassword("adminuser@mail.com", "admin123");
   }
 };
 
@@ -54,6 +55,6 @@ export const signInWithApple = async () => {
     return await pb.collection("users").authWithOAuth2({ provider: "apple" });
   } catch (error) {
     console.error("OAuth Apple failed, falling back to mock authentication in dev:", error);
-    return await signInWithEmailAndPassword("madadev97200@gmail.com", "password123");
+    return await signInWithEmailAndPassword("adminuser@mail.com", "admin123");
   }
 };
