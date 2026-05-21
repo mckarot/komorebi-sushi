@@ -25,7 +25,9 @@ import {
   Trash2,
   Plus,
   Minus,
-  ClipboardList
+  ClipboardList,
+  Sun,
+  Moon
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -223,7 +225,21 @@ const CATEGORIES = ["Tous", "Nigiri", "Rolls", "Sashimi"];
 
 // --- Components ---
 
-const Navbar = ({ onToggleDashboard, isDashboard, onOpenCart, onOpenAuth }: { onToggleDashboard: () => void, isDashboard: boolean, onOpenCart: () => void, onOpenAuth: () => void }) => {
+const Navbar = ({ 
+  onToggleDashboard, 
+  isDashboard, 
+  onOpenCart, 
+  onOpenAuth,
+  theme,
+  toggleTheme
+}: { 
+  onToggleDashboard: () => void, 
+  isDashboard: boolean, 
+  onOpenCart: () => void, 
+  onOpenAuth: () => void,
+  theme: "light" | "dark",
+  toggleTheme: () => void
+}) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, loading, role } = useAuth();
   const { cart } = useCart();
@@ -280,6 +296,31 @@ const Navbar = ({ onToggleDashboard, isDashboard, onOpenCart, onOpenAuth }: { on
             <span className="font-semibold uppercase tracking-widest text-muted-foreground">Espace Professionnel</span>
           )}
           
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="rounded-full hover:bg-muted relative w-8 h-8 flex items-center justify-center overflow-hidden transition-all duration-300 cursor-pointer"
+            aria-label="Changer de thème"
+          >
+            <motion.div
+              initial={false}
+              animate={{ rotate: theme === 'dark' ? 180 : 0, scale: theme === 'dark' ? 0 : 1, opacity: theme === 'dark' ? 0 : 1 }}
+              transition={{ duration: 0.3 }}
+              className="absolute flex items-center justify-center"
+            >
+              <Moon className="w-4 h-4 text-foreground" />
+            </motion.div>
+            <motion.div
+              initial={false}
+              animate={{ rotate: theme === 'dark' ? 0 : -180, scale: theme === 'dark' ? 1 : 0, opacity: theme === 'dark' ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center justify-center"
+            >
+              <Sun className="w-4 h-4 text-foreground" />
+            </motion.div>
+          </Button>
+
           {loading ? (
             <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
           ) : user ? (
@@ -309,7 +350,32 @@ const Navbar = ({ onToggleDashboard, isDashboard, onOpenCart, onOpenAuth }: { on
           )}
         </div>
 
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="rounded-full hover:bg-muted relative w-8 h-8 flex items-center justify-center overflow-hidden transition-all duration-300 cursor-pointer"
+            aria-label="Changer de thème"
+          >
+            <motion.div
+              initial={false}
+              animate={{ rotate: theme === 'dark' ? 180 : 0, scale: theme === 'dark' ? 0 : 1, opacity: theme === 'dark' ? 0 : 1 }}
+              transition={{ duration: 0.3 }}
+              className="absolute flex items-center justify-center"
+            >
+              <Moon className="w-4 h-4 text-foreground" />
+            </motion.div>
+            <motion.div
+              initial={false}
+              animate={{ rotate: theme === 'dark' ? 0 : -180, scale: theme === 'dark' ? 1 : 0, opacity: theme === 'dark' ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center justify-center"
+            >
+              <Sun className="w-4 h-4 text-foreground" />
+            </motion.div>
+          </Button>
+
           <Sheet>
             <SheetTrigger render={
               <Button variant="ghost" size="icon">
@@ -326,6 +392,35 @@ const Navbar = ({ onToggleDashboard, isDashboard, onOpenCart, onOpenAuth }: { on
                     {item}
                   </a>
                 ))}
+                
+                <div className="flex items-center justify-between border-t border-border pt-6 mt-4">
+                  <span className="text-sm font-medium text-foreground">Mode Sombre</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleTheme}
+                    className="rounded-full hover:bg-muted w-10 h-10 flex items-center justify-center border border-border relative overflow-hidden transition-all cursor-pointer"
+                    aria-label="Changer de thème"
+                  >
+                    <motion.div
+                      initial={false}
+                      animate={{ rotate: theme === 'dark' ? 180 : 0, scale: theme === 'dark' ? 0 : 1, opacity: theme === 'dark' ? 0 : 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute flex items-center justify-center"
+                    >
+                      <Moon className="w-5 h-5 text-foreground" />
+                    </motion.div>
+                    <motion.div
+                      initial={false}
+                      animate={{ rotate: theme === 'dark' ? 0 : -180, scale: theme === 'dark' ? 1 : 0, opacity: theme === 'dark' ? 1 : 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex items-center justify-center"
+                    >
+                      <Sun className="w-5 h-5 text-foreground" />
+                    </motion.div>
+                  </Button>
+                </div>
+                
                 <Button className="w-full rounded-full mt-4">Réserver une table</Button>
               </div>
             </SheetContent>
@@ -415,7 +510,7 @@ const MenuSection = ({ items }: { items: MenuItem[] }) => {
     : items.filter(item => item.category === activeCategory);
 
   return (
-    <section id="menu" className="py-32 bg-white">
+    <section id="menu" className="py-32 bg-background">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
           <div className="max-w-xl">
@@ -432,7 +527,7 @@ const MenuSection = ({ items }: { items: MenuItem[] }) => {
                 <TabsTrigger 
                   key={cat} 
                   value={cat}
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent px-0 py-4 text-sm font-medium transition-all"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent px-0 py-4 text-sm font-medium transition-all"
                 >
                   {cat}
                 </TabsTrigger>
@@ -498,7 +593,7 @@ const MenuSection = ({ items }: { items: MenuItem[] }) => {
 
 const Philosophy = () => {
   return (
-    <section id="philosophie" className="py-32 bg-[#fafafa]">
+    <section id="philosophie" className="py-32 bg-muted/40">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div className="relative">
@@ -521,7 +616,7 @@ const Philosophy = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 1, delay: 0.5 }}
-              className="absolute -bottom-10 -right-10 hidden md:block w-64 h-64 rounded-2xl overflow-hidden border-[12px] border-white shadow-xl"
+              className="absolute -bottom-10 -right-10 hidden md:block w-64 h-64 rounded-2xl overflow-hidden border-[12px] border-background shadow-xl"
             >
               <img 
                 src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop" 
@@ -2420,6 +2515,31 @@ export default function App() {
   const [isLoadingMenu, setIsLoadingMenu] = useState(true);
   const [menuError, setMenuError] = useState<string | null>(null);
 
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.style.colorScheme = 'dark';
+    } else {
+      root.classList.remove('dark');
+      root.style.colorScheme = 'light';
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
   useEffect(() => {
     const handleLocationChange = () => {
       setCurrentPath(window.location.pathname);
@@ -2480,6 +2600,8 @@ export default function App() {
                     isDashboard={currentPath === "/admin"} 
                     onOpenCart={() => setIsCartOpen(true)}
                     onOpenAuth={() => setIsAuthModalOpen(true)}
+                    theme={theme}
+                    toggleTheme={toggleTheme}
                   />
                 )}
                 <main>
